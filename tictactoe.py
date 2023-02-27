@@ -75,12 +75,6 @@ def decideturn(mark):
                         planmeta[reihenelement][2-reihenelement] = -1
                     break
 
-
-
-
-    
-
-
 def playturn(player,mark):
     global spielplan
     global planmeta
@@ -97,7 +91,6 @@ def playturn(player,mark):
             planmeta[(spot-1) // 3][(spot-1) % 3] = 1
         else:
             planmeta[(spot-1) // 3][(spot-1) % 3] = -1
-        
 
 def reihensummieren():
     global rowsums
@@ -110,10 +103,7 @@ def reihensummieren():
     rowsums[6]=planmeta[0][0] + planmeta[1][1] + planmeta[2][2]
     rowsums[7]=planmeta[2][0] + planmeta[1][1] + planmeta[0][2]
 
-
-
 ############################################################################
-
 
 print('\n Let\'s play TicTacToe! Input your turn like this:\n')
 for row in range(3):
