@@ -89,7 +89,7 @@ def playturn(player,mark):
     else:
         spot=int(input(f'Player {player}, please input your next movement: '))
         while spielplan[(spot-1) // 3][(spot-1) % 3] != ' ':
-            print('der zug war quatsch')
+            print('That place is already taken! Please try again.')
             spot=int(input(f'Player {player}, please input your next movement: '))
         
         spielplan[(spot-1) // 3][(spot-1) % 3] = mark
@@ -153,4 +153,4 @@ while turn <= 9:
     turn = turn+1
     
 zeigplan()
-print('Das Spiel ist zuende\n')
+print('End of Game\n')
