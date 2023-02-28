@@ -17,6 +17,13 @@ def zeigplan():
         if row < 2:
             print('- + - + -')
     print('\n')
+
+def markturningameplan(mark,x,y):
+    spielplan[x][y]=mark
+    if mark=='X':
+        planmeta[x][y] = 1
+    else:
+        planmeta[x][y] = -1
     
 def decideturn(mark):
     turnsum=-1
@@ -29,50 +36,30 @@ def decideturn(mark):
         while True:
             choice = random.randint(1,9)
             if spielplan[(choice-1) // 3][(choice-1) % 3]==' ':
-                spielplan[(choice-1) // 3][(choice-1) % 3]=mark
-                if mark=='X':
-                    planmeta[(choice-1) // 3][(choice-1) % 3] = 1
-                else:
-                    planmeta[(choice-1) // 3][(choice-1) % 3] = -1
+                markturningameplan(mark,(choice-1) // 3,(choice-1) % 3)
                 break
     else:
         for reihe in range(3):
             if turnsum == reihe:
                 for reihenelement in range(3):
                     if spielplan[reihe][reihenelement]==' ':
-                        spielplan[reihe][reihenelement]=mark
-                        if mark=='X':
-                            planmeta[reihe][reihenelement] = 1
-                        else:
-                            planmeta[reihe][reihenelement] = -1
+                        markturningameplan(mark,reihe,reihenelement)
                         break
             if turnsum == reihe+3:
                 for reihenelement in range(3):
                     if spielplan[reihenelement][reihe]==' ':
-                        spielplan[reihenelement][reihe]=mark
-                        if mark=='X':
-                            planmeta[reihenelement][reihe] = 1
-                        else:
-                            planmeta[reihenelement][reihe] = -1
+                        markturningameplan(mark,reihenelement,reihe)
                         break
         
         if turnsum == 6:
             for reihenelement in range(3):
                 if spielplan[reihenelement][reihenelement]==' ':
-                    spielplan[reihenelement][reihenelement]=mark
-                    if mark=='X':
-                        planmeta[reihenelement][reihenelement] = 1
-                    else:
-                        planmeta[reihenelement][reihenelement] = -1
+                    markturningameplan(mark,reihenelement,reihenelement)
                     break
         if turnsum == 7:
             for reihenelement in range(3):
                 if spielplan[reihenelement][2-reihenelement]==' ':
-                    spielplan[reihenelement][2-reihenelement]=mark
-                    if mark=='X':
-                        planmeta[reihenelement][2-reihenelement] = 1
-                    else:
-                        planmeta[reihenelement][2-reihenelement] = -1
+                    markturningameplan(mark,reihenelement,2-reihenelement)
                     break
 
 def playturn(player,mark):
@@ -86,11 +73,7 @@ def playturn(player,mark):
             print('der zug war quatsch')
             spot=int(input(f'Player {player}, please input your next movement: '))
         
-        spielplan[(spot-1) // 3][(spot-1) % 3] = mark
-        if mark=='X':
-            planmeta[(spot-1) // 3][(spot-1) % 3] = 1
-        else:
-            planmeta[(spot-1) // 3][(spot-1) % 3] = -1
+        markturningameplan(mark,(spot-1) // 3, (spot-1) % 3)
 
 def reihensummieren():
     global rowsums
