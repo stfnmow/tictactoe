@@ -5,6 +5,10 @@ planmeta = [[0,0,0],[0,0,0],[0,0,0]]
 rowsums = [0,0,0,0,0,0,0,0]
 
 
+# TODO:
+# Liste von noch freien Positionen (verhindert zufällige Suche, bis freie Position erwischt wird. Erleichtert Verifikation eines Zugs)
+# ...
+
 turn = 1
 turnplayer = [0,0,0,0,0,0,0,0,0]
 
@@ -32,35 +36,37 @@ def decideturn(mark):
             turnsum=sum
             break
     
+    # Wenn keine Zeile, Spalte oder Diagonale 2 gleiche Marker bei freiem dritten Platz hat,
+    # wähle zufällig eine Position als Zug. Verifiziere, dass die Position noch frei ist.
     if turnsum == -1:
         while True:
             choice = random.randint(1,9)
             if spielplan[(choice-1) // 3][(choice-1) % 3]==' ':
                 markturningameplan(mark,(choice-1) // 3,(choice-1) % 3)
                 break
-    else:
-        for reihe in range(3):
-            if turnsum == reihe:
-                for reihenelement in range(3):
-                    if spielplan[reihe][reihenelement]==' ':
-                        markturningameplan(mark,reihe,reihenelement)
-                        break
-            if turnsum == reihe+3:
-                for reihenelement in range(3):
-                    if spielplan[reihenelement][reihe]==' ':
-                        markturningameplan(mark,reihenelement,reihe)
-                        break
-        
-        if turnsum == 6:
+
+    for reihe in range(3):
+        if turnsum == reihe:
             for reihenelement in range(3):
-                if spielplan[reihenelement][reihenelement]==' ':
-                    markturningameplan(mark,reihenelement,reihenelement)
+                if spielplan[reihe][reihenelement]==' ':
+                    markturningameplan(mark,reihe,reihenelement)
                     break
-        if turnsum == 7:
+        if turnsum == reihe+3:
             for reihenelement in range(3):
-                if spielplan[reihenelement][2-reihenelement]==' ':
-                    markturningameplan(mark,reihenelement,2-reihenelement)
+                if spielplan[reihenelement][reihe]==' ':
+                    markturningameplan(mark,reihenelement,reihe)
                     break
+    
+    if turnsum == 6:
+        for reihenelement in range(3):
+            if spielplan[reihenelement][reihenelement]==' ':
+                markturningameplan(mark,reihenelement,reihenelement)
+                break
+    if turnsum == 7:
+        for reihenelement in range(3):
+            if spielplan[reihenelement][2-reihenelement]==' ':
+                markturningameplan(mark,reihenelement,2-reihenelement)
+                break
 
 def playturn(player,mark):
     global spielplan
