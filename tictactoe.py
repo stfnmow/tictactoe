@@ -1,4 +1,5 @@
 import random
+import itertools
 
 spielplan = [['','',''],['','',''],['','','']]
 planmeta = [[0,0,0],[0,0,0],[0,0,0]]
@@ -7,6 +8,7 @@ rowsums = [0,0,0,0,0,0,0,0]
 
 # TODO:
 # Liste von noch freien Positionen (verhindert zufällige Suche, bis freie Position erwischt wird. Erleichtert Verifikation eines Zugs)
+# Falsche eingaben (außerhalb von 1-9) abfangen
 # ...
 
 turn = 1
@@ -24,10 +26,7 @@ def zeigplan():
 
 def markturningameplan(mark,x,y):
     spielplan[x][y]=mark
-    if mark=='X':
-        planmeta[x][y] = 1
-    else:
-        planmeta[x][y] = -1
+    planmeta[x][y] = 1 if mark=='X' else -1
     
 def decideturn(mark):
     turnsum=-1
@@ -45,6 +44,7 @@ def decideturn(mark):
                 markturningameplan(mark,(choice-1) // 3,(choice-1) % 3)
                 break
 
+    # sonst, wenn in eine der 2 Zeilen oder Spalten ein Zweier vorliegt, setze den Zug dort...                
     for reihe in range(3):
         if turnsum == reihe:
             for reihenelement in range(3):
@@ -57,13 +57,13 @@ def decideturn(mark):
                     markturningameplan(mark,reihenelement,reihe)
                     break
     
-    if turnsum == 6:
-        for reihenelement in range(3):
+    # sonst, wenn in einer der beiden Diagonalen ein Zweier vorliegt, setze dort.
+    for reihenelement in range(3):
+        if turnsum == 6:
             if spielplan[reihenelement][reihenelement]==' ':
                 markturningameplan(mark,reihenelement,reihenelement)
                 break
-    if turnsum == 7:
-        for reihenelement in range(3):
+        elif turnsum == 7:
             if spielplan[reihenelement][2-reihenelement]==' ':
                 markturningameplan(mark,reihenelement,2-reihenelement)
                 break
@@ -95,15 +95,13 @@ def reihensummieren():
 ############################################################################
 
 print('\n Let\'s play TicTacToe! Input your turn like this:\n')
-for row in range(3):
-    for col in range(3):
-        spielplan[row][col] = row*3 + col + 1
+for row, col in itertools.product(range(3), range(3)):
+    spielplan[row][col] = row*3 + col + 1
 
 zeigplan()
 
-for row in range(3):
-    for col in range(3):
-        spielplan[row][col] = ' '
+for row, col in itertools.product(range(3), range(3)):
+    spielplan[row][col] = ' '
 
 
 mode=int(input('please input mode: 1 for player vs cpu, 2 for two players: '))
@@ -119,10 +117,7 @@ else:
 
 
 while turn <= 9:
-    if turn % 2 == 0:
-        symbol = 'O'
-    else:
-        symbol = 'X'
+    symbol = 'O' if turn % 2 == 0 else 'X'
     zeigplan()
     playturn(turnplayer[turn-1],symbol)
     reihensummieren()
@@ -130,6 +125,6 @@ while turn <= 9:
         print('\nWe have a winner!')
         break
     turn = turn+1
-    
+
 zeigplan()
 print('Das Spiel ist zuende\n')
