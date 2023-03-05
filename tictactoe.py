@@ -1,20 +1,7 @@
 import random
 import itertools
 
-spielplan = [['','',''],['','',''],['','','']]
-planmeta = [[0,0,0],[0,0,0],[0,0,0]]
-rowsums = [0,0,0,0,0,0,0,0]
 
-
-# TODO:
-# Liste von noch freien Positionen (verhindert zufällige Suche, bis freie Position erwischt wird. Erleichtert Verifikation eines Zugs)
-# Falsche eingaben (außerhalb von 1-9) abfangen
-# ...
-
-turn = 1
-turnplayer = [0,0,0,0,0,0,0,0,0]
-
-symbol=' '
 
 def zeigplan():
     print('\n')
@@ -92,39 +79,67 @@ def reihensummieren():
     rowsums[6]=planmeta[0][0] + planmeta[1][1] + planmeta[2][2]
     rowsums[7]=planmeta[2][0] + planmeta[1][1] + planmeta[0][2]
 
+def initializeBoard(fill):
+    for row, col in itertools.product(range(3), range(3)):
+        spielplan[row][col] = ' ' if fill=='empty' else  row*3 + col + 1
+
+############################################################################
+############################################################################
 ############################################################################
 
+# TODO:
+# Liste von noch freien Positionen (verhindert zufällige Suche, bis freie Position erwischt wird. Erleichtert Verifikation eines Zugs)
+# Falsche eingaben (außerhalb von 1-9) abfangen
+# ...
+
+
+
+spielplan = [['','',''],['','',''],['','','']]
+
+
+
 print('\n Let\'s play TicTacToe! Input your turn like this:\n')
-for row, col in itertools.product(range(3), range(3)):
-    spielplan[row][col] = row*3 + col + 1
-
+initializeBoard('numbers')
 zeigplan()
 
-for row, col in itertools.product(range(3), range(3)):
-    spielplan[row][col] = ' '
+playagain = True
+while playagain:
+    initializeBoard('empty')
 
 
-mode=int(input('please input mode: 1 for player vs cpu, 2 for two players: '))
-if mode==1:
-    beginner=int(input('Who starts? 1 for you, 2 for me: '))
-    if beginner==1:
-        turnplayer = [1,3,1,3,1,3,1,3,1]
+    planmeta = [[0,0,0],[0,0,0],[0,0,0]]
+    rowsums = [0,0,0,0,0,0,0,0]
+    turn = 1
+    turnplayer = [0,0,0,0,0,0,0,0,0]
+
+    symbol=' '
+
+
+
+    mode=int(input('please input mode: 1 for player vs cpu, 2 for two players: '))
+    if mode==1:
+        beginner=int(input('Who starts? 1 for you, 2 for me: '))
+        if beginner==1:
+            turnplayer = [1,3,1,3,1,3,1,3,1]
+        else:
+            turnplayer = [3,1,3,1,3,1,3,1,3]
+
     else:
-        turnplayer = [3,1,3,1,3,1,3,1,3]
-
-else:
-    turnplayer = [1,2,1,2,1,2,1,2,1]
+        turnplayer = [1,2,1,2,1,2,1,2,1]
 
 
-while turn <= 9:
-    symbol = 'O' if turn % 2 == 0 else 'X'
+    while turn <= 9:
+        symbol = 'O' if turn % 2 == 0 else 'X'
+        zeigplan()
+        playturn(turnplayer[turn-1],symbol)
+        reihensummieren()
+        if max(rowsums)==3 or min(rowsums)==-3:
+            print('\nWe have a winner!')
+            break
+        turn = turn+1
+
     zeigplan()
-    playturn(turnplayer[turn-1],symbol)
-    reihensummieren()
-    if max(rowsums)==3 or min(rowsums)==-3:
-        print('\nWe have a winner!')
-        break
-    turn = turn+1
+    print('Das Spiel ist zuende\n')
+    playagain = bool(int(input('Do you want to play another round? 1 for yes, 0 for no: ')))
 
-zeigplan()
-print('Das Spiel ist zuende\n')
+print('kthxby')
