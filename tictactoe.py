@@ -1,14 +1,7 @@
 import random
-
-spielplan = [['','',''],['','',''],['','','']]
-planmeta = [[0,0,0],[0,0,0],[0,0,0]]
-rowsums = [0,0,0,0,0,0,0,0]
+import itertools
 
 
-turn = 1
-turnplayer = [0,0,0,0,0,0,0,0,0]
-
-symbol=' '
 
 def zeigplan():
     print('\n')
@@ -17,6 +10,10 @@ def zeigplan():
         if row < 2:
             print('- + - + -')
     print('\n')
+
+def markturningameplan(mark,x,y):
+    spielplan[x][y]=mark
+    planmeta[x][y] = 1 if mark=='X' else -1
     
 def decideturn(mark):
     turnsum=-1
@@ -25,61 +22,38 @@ def decideturn(mark):
             turnsum=sum
             break
     
+    # Wenn keine Zeile, Spalte oder Diagonale 2 gleiche Marker bei freiem dritten Platz hat,
+    # wähle zufällig eine Position als Zug. Verifiziere, dass die Position noch frei ist.
     if turnsum == -1:
         while True:
             choice = random.randint(1,9)
             if spielplan[(choice-1) // 3][(choice-1) % 3]==' ':
-                spielplan[(choice-1) // 3][(choice-1) % 3]=mark
-                if mark=='X':
-                    planmeta[(choice-1) // 3][(choice-1) % 3] = 1
-                else:
-                    planmeta[(choice-1) // 3][(choice-1) % 3] = -1
+                markturningameplan(mark,(choice-1) // 3,(choice-1) % 3)
                 break
-    else:
-        for reihe in range(3):
-            if turnsum == reihe:
-                for reihenelement in range(3):
-                    if spielplan[reihe][reihenelement]==' ':
-                        spielplan[reihe][reihenelement]=mark
-                        if mark=='X':
-                            planmeta[reihe][reihenelement] = 1
-                        else:
-                            planmeta[reihe][reihenelement] = -1
-                        break
-            if turnsum == reihe+3:
-                for reihenelement in range(3):
-                    if spielplan[reihenelement][reihe]==' ':
-                        spielplan[reihenelement][reihe]=mark
-                        if mark=='X':
-                            planmeta[reihenelement][reihe] = 1
-                        else:
-                            planmeta[reihenelement][reihe] = -1
-                        break
-        
-        if turnsum == 6:
+
+    # sonst, wenn in eine der 2 Zeilen oder Spalten ein Zweier vorliegt, setze den Zug dort...                
+    for reihe in range(3):
+        if turnsum == reihe:
             for reihenelement in range(3):
-                if spielplan[reihenelement][reihenelement]==' ':
-                    spielplan[reihenelement][reihenelement]=mark
-                    if mark=='X':
-                        planmeta[reihenelement][reihenelement] = 1
-                    else:
-                        planmeta[reihenelement][reihenelement] = -1
+                if spielplan[reihe][reihenelement]==' ':
+                    markturningameplan(mark,reihe,reihenelement)
                     break
-        if turnsum == 7:
+        if turnsum == reihe+3:
             for reihenelement in range(3):
-                if spielplan[reihenelement][2-reihenelement]==' ':
-                    spielplan[reihenelement][2-reihenelement]=mark
-                    if mark=='X':
-                        planmeta[reihenelement][2-reihenelement] = 1
-                    else:
-                        planmeta[reihenelement][2-reihenelement] = -1
+                if spielplan[reihenelement][reihe]==' ':
+                    markturningameplan(mark,reihenelement,reihe)
                     break
-
-
-
-
     
-
+    # sonst, wenn in einer der beiden Diagonalen ein Zweier vorliegt, setze dort.
+    for reihenelement in range(3):
+        if turnsum == 6:
+            if spielplan[reihenelement][reihenelement]==' ':
+                markturningameplan(mark,reihenelement,reihenelement)
+                break
+        elif turnsum == 7:
+            if spielplan[reihenelement][2-reihenelement]==' ':
+                markturningameplan(mark,reihenelement,2-reihenelement)
+                break
 
 def playturn(player,mark):
     global spielplan
@@ -92,12 +66,7 @@ def playturn(player,mark):
             print('That place is already taken! Please try again.')
             spot=int(input(f'Player {player}, please input your next movement: '))
         
-        spielplan[(spot-1) // 3][(spot-1) % 3] = mark
-        if mark=='X':
-            planmeta[(spot-1) // 3][(spot-1) % 3] = 1
-        else:
-            planmeta[(spot-1) // 3][(spot-1) % 3] = -1
-        
+        markturningameplan(mark,(spot-1) // 3, (spot-1) % 3)
 
 def reihensummieren():
     global rowsums
@@ -110,47 +79,68 @@ def reihensummieren():
     rowsums[6]=planmeta[0][0] + planmeta[1][1] + planmeta[2][2]
     rowsums[7]=planmeta[2][0] + planmeta[1][1] + planmeta[0][2]
 
-
+def initializeBoard(fill):
+    for row, col in itertools.product(range(3), range(3)):
+        spielplan[row][col] = ' ' if fill=='empty' else  row*3 + col + 1
 
 ############################################################################
+############################################################################
+############################################################################
+
+# TODO:
+# Liste von noch freien Positionen (verhindert zufällige Suche, bis freie Position erwischt wird. Erleichtert Verifikation eines Zugs)
+# Falsche eingaben (außerhalb von 1-9) abfangen
+# ...
+
+
+
+spielplan = [['','',''],['','',''],['','','']]
+
 
 
 print('\n Let\'s play TicTacToe! Input your turn like this:\n')
-for row in range(3):
-    for col in range(3):
-        spielplan[row][col] = row*3 + col + 1
-
+initializeBoard('numbers')
 zeigplan()
 
-for row in range(3):
-    for col in range(3):
-        spielplan[row][col] = ' '
+playagain = True
+while playagain:
+    initializeBoard('empty')
 
 
-mode=int(input('please input mode: 1 for player vs cpu, 2 for two players: '))
-if mode==1:
-    beginner=int(input('Who starts? 1 for you, 2 for me: '))
-    if beginner==1:
-        turnplayer = [1,3,1,3,1,3,1,3,1]
+    planmeta = [[0,0,0],[0,0,0],[0,0,0]]
+    rowsums = [0,0,0,0,0,0,0,0]
+    turn = 1
+    turnplayer = [0,0,0,0,0,0,0,0,0]
+
+    symbol=' '
+
+
+
+    mode=int(input('please input mode: 1 for player vs cpu, 2 for two players: '))
+    if mode==1:
+        beginner=int(input('Who starts? 1 for you, 2 for me: '))
+        if beginner==1:
+            turnplayer = [1,3,1,3,1,3,1,3,1]
+        else:
+            turnplayer = [3,1,3,1,3,1,3,1,3]
+
     else:
-        turnplayer = [3,1,3,1,3,1,3,1,3]
-
-else:
-    turnplayer = [1,2,1,2,1,2,1,2,1]
+        turnplayer = [1,2,1,2,1,2,1,2,1]
 
 
-while turn <= 9:
-    if turn % 2 == 0:
-        symbol = 'O'
-    else:
-        symbol = 'X'
+    while turn <= 9:
+        symbol = 'O' if turn % 2 == 0 else 'X'
+        zeigplan()
+        playturn(turnplayer[turn-1],symbol)
+        reihensummieren()
+        if max(rowsums)==3 or min(rowsums)==-3:
+            print('\nWe have a winner!')
+            break
+        turn = turn+1
+
     zeigplan()
-    playturn(turnplayer[turn-1],symbol)
-    reihensummieren()
-    if max(rowsums)==3 or min(rowsums)==-3:
-        print('\nWe have a winner!')
-        break
-    turn = turn+1
-    
-zeigplan()
-print('End of Game\n')
+    print('End of Game\n')
+
+    playagain = bool(int(input('Do you want to play another round? 1 for yes, 0 for no: ')))
+
+print('kthxby')
