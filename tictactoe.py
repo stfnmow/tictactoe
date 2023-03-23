@@ -136,7 +136,7 @@ while playagain:
         if max(rowsums)==3 or min(rowsums)==-3:
             print('\nWe have a winner!')
             break
-        turn = turn+1
+        turn += 1
 
     zeigplan()
     print('End of Game\n')
